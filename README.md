@@ -1,24 +1,21 @@
-# tmdb
+# Фильмы The Movie Database
 
-## Project setup
+## Установка проекта
+Скачать проект, в командной строке перейти по пути к папке с проектом и ввести команду:
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Запуск проекта
+После установки запустить проект командой:
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Компиляция проекта (не нужна для запуска)
 ```
 npm run build
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Автор
+[Юферов Святослав](https://perm.hh.ru/resume/abbcdca4ff0380a54f0039ed1f636b37476b67).
