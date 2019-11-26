@@ -37,6 +37,7 @@
           </div>
         </div>
         <!-- Вывод первого трейлера -->
+        <p class="trailer">Трейлер</p>
         <iframe v-if="videosrc != ''" width="100%" height="315" :src="videosrc" frameborder="0" allowfullscreen></iframe>
         <div v-if="videosrc == ''">
           Трейлер не найден!
@@ -122,6 +123,23 @@ export default {
 </script>
 
 <style>
+.trailer{
+  text-align: left;
+  font-weight: 700;
+  font-size: 14px;
+  border-bottom: 3px solid #d4d4d4;
+  padding-bottom: 7px;
+  position: relative;
+}
+.trailer:after{
+  content: '';
+  width: 60px;
+  height: 3px;
+  background-color: #000;
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+}
 .genres-ttl{
   font-size: 12px;
   margin-bottom: 5px;
@@ -189,6 +207,8 @@ export default {
 }
 .overview-block .info .desc{
   color: #6e6e6e;
+  font-size: 14px;
+  line-height: 22px;
 }
 .back-black{
   width: 100%;
