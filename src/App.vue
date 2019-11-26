@@ -1,10 +1,9 @@
 
 <template>
   <div id="app">
+    <!-- Модальное окно детальной информации о фильме (вывод ифнформации при клике на кнопку "подробнее")  -->
     <div class="film-detail-modal" id="film-detail-modal" :class="{'modal-open': modalBool}" >
-      <div class="back-black" @click="modalBool =false;">
-
-      </div>
+      <div class="back-black" @click="modalBool =false;"></div>
       <div class="modal-inner">
         <div class="modal-close" @click="modalBool = false; videosrc = ''">
           <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -21,9 +20,23 @@
           <img :src="'https://image.tmdb.org/t/p/w500/' + filmdetail.poster_path" alt="">
           <div class="info">
             <p :id="'id'+index" class="title"><b>{{filmdetail.title}}</b> <br> {{filmdetail.original_title}}</p>
+            <div class="votes">
+              <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+              viewBox="0 0 53.867 53.867" style="enable-background:new 0 0 53.867 53.867;" xml:space="preserve">
+              <polygon style="fill:#EFCE4A;" points="26.934,1.318 35.256,18.182 53.867,20.887 40.4,34.013 43.579,52.549 26.934,43.798
+              10.288,52.549 13.467,34.013 0,20.887 18.611,18.182 "/>
+              </svg>
+              <span class="vote-average">{{filmdetail.vote_average}}</span>
+              <span class="vote-count">({{filmdetail.vote_count}})</span>
+            </div>
+            <p class="genres-ttl">Жанры:</p>
+            <ul class="genres-list">
+              <li v-for="genre in filmdetail.genres" :key="genre.id">{{genre.name}}</li>
+            </ul>
             <p class="desc">{{filmdetail.overview}}</p>
           </div>
         </div>
+        <!-- Вывод первого трейлера -->
         <iframe v-if="videosrc != ''" width="100%" height="315" :src="videosrc" frameborder="0" allowfullscreen></iframe>
         <div v-if="videosrc == ''">
           Трейлер не найден!
@@ -32,9 +45,11 @@
     </div>
     <img alt="Vue logo" src="./assets/logo.png">
     <h1>Фильмы The Movie Database</h1>
+    <!-- Вывод категорий фильмов  -->
     <ul class="cats">
       <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="fetchData(cat.catname);currentIndex = index">{{cat.name}}</li>
     </ul>
+    <!-- Вывод списка фильмов  -->
     <ul class="films-list">
       <li v-for="(result,index) in results" :key="result.id" class="list-item">
         <img :src="'https://image.tmdb.org/t/p/w500/' + result.poster_path" alt="12">
@@ -50,10 +65,13 @@
   </div>
 </template>
 <script>
+//Функция обрезания текста по кол-ву символов.
 String.prototype.trimtxt = function (length) {
   return this.length > length ? this.substring(0, length) + "..." : this;
 }
+
 import axios from 'axios'
+
 export default {
   name: 'app',
   data: function(){
@@ -68,9 +86,10 @@ export default {
     }
   },
   mounted(){
-    this.fetchData('popular');
+    this.fetchData('popular'); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
   },
   methods: {
+    //Функция запроса списка фильмов по определенной категории
     fetchData: function(catname){
       let cat = catname;
       axios.get('https://api.themoviedb.org/3/movie/' + cat + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
@@ -79,12 +98,15 @@ export default {
              this.errors.push(error);
        });
     },
+    //Функция получения подробной информации о выбранном фильме и получение трейлера
     getFilm: function(id){
+      //запрос на информацию
       axios.get('https://api.themoviedb.org/3/movie/' + id + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
        .then(response => {this.filmdetail = response.data == 'error' ? [] : response.data;})
        .catch(error => {
              this.errors.push(error);
        });
+       //запрос на трейлер
        axios.get('https://api.themoviedb.org/3/movie/' + id + '/videos?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
         .then(response => {this.filmdetail.videos = response.data == 'error' ? [] : response.data.results; this.videosrc = this.filmdetail.videos.length > 0 ? 'https://www.youtube.com/embed/' + this.filmdetail.videos[0].key : ''})
         .catch(error => {
@@ -100,12 +122,55 @@ export default {
 </script>
 
 <style>
+.genres-ttl{
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #878787;
+  font-weight: 700;
+  margin-top: 20px;
+}
+.genres-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.genres-list li{
+  display: inline-block;
+  cursor: pointer;
+  color: #878787;
+  font-size: 12px;
+  margin-right: 10px;
+  text-transform: capitalize;
+}
+.votes{
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.votes span{
+  padding-top: 3px;
+}
+.votes .vote-average{
+  margin-right: 5px;
+  font-weight: 700;
+}
+.votes .vote-count{
+  color: #878787;
+  font-size: 12px;
+}
+.votes svg{
+  width: 20px;
+  margin-right: 5px;
+}
 .overview-block{
   display: flex;
   margin-bottom: 40px;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 .overview-block img{
   width: 200px;
+  height: auto;
   margin-right: 20px;
 }
 .overview-block .info{
@@ -114,7 +179,9 @@ export default {
 .overview-block .info .title{
   font-size: 16px;
   color: #6e6e6e;
+  margin-top: 0;
   line-height: 25px;
+  margin-bottom: 3px;
 }
 .overview-block .info .title b{
   color: #000;
