@@ -3,9 +3,9 @@
   <div id="app">
     <!-- Модальное окно детальной информации о фильме (вывод ифнформации при клике на кнопку "подробнее")  -->
     <div class="film-detail-modal" id="film-detail-modal" :class="{'modal-open': modalBool}" >
-      <div class="back-black" @click="modalBool =false;videosrc = '';"></div>
+      <div class="back-black" @click="modalBool =false;videosrc = '';rScroll();"></div>
       <div class="modal-inner">
-        <div class="modal-close" @click="modalBool = false; videosrc = ''">
+        <div class="modal-close" @click="modalBool = false; videosrc = '';rScroll();">
           <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
           viewBox="0 0 47.971 47.971" style="enable-background:new 0 0 47.971 47.971;" xml:space="preserve">
             <g>
@@ -90,6 +90,9 @@ export default {
     this.fetchData('popular'); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
   },
   methods: {
+    rScroll: function(){
+      document.getElementsByTagName('body')[0].classList.remove('nonscroll');
+    },
     //Функция запроса списка фильмов по определенной категории
     fetchData: function(catname){
       let cat = catname;
@@ -113,6 +116,7 @@ export default {
         .catch(error => {
               this.errors.push(error);
         });
+        document.getElementsByTagName('body')[0].classList.add('nonscroll');
         let self = this;
         setTimeout(function(){
           self.modalBool = true;
@@ -123,6 +127,17 @@ export default {
 </script>
 
 <style>
+.nonscroll{
+  overflow: hidden;
+}
+/* хром, сафари */
+.film-detail-modal::-webkit-scrollbar { width: 0; }
+
+/* ie 10+ */
+.film-detail-modal { -ms-overflow-style: none; }
+
+/* фф (свойство больше не работает, других способов тоже нет)*/
+.film-detail-modal { overflow: -moz-scrollbars-none; }
 .trailer{
   text-align: left;
   font-weight: 700;
@@ -216,7 +231,7 @@ export default {
   top: 0;
   left: 0;
   overflow: hidden;
-  position: absolute;
+  position: fixed;
   background-color: rgba(0,0,0,0.3);
 }
 .film-detail-modal{
@@ -224,23 +239,24 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
-  overflow: hidden;
+  overflow-y: auto;
   z-index: 1000;
   position: fixed;
   display: none;
-  justify-content: center;
-  align-items: center;
 }
 .modal-open{
-  display: flex;
+  display: block;
 }
 .modal-inner{
   width: 600px;
   height: auto;
   border-radius: 5px;
   padding: 20px;
+  margin: 0 auto;
+  margin-top: 20px;
   background-color: #fff;
   position: relative;
+  margin-bottom: 30px;
   animation: modalopen 0.5s ease;
 }
 .modal-close{
