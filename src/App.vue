@@ -44,7 +44,10 @@
         </div>
       </div>
     </div>
-    <img alt="Vue logo" src="./assets/logo.png">
+    <div class="images">
+      <img alt="Vue logo" src="./assets/logo.png" class="vue-img">
+      <img class="tmdb-img" src="https://www.themoviedb.org/assets/2/v4/logos/primary-green-d70eebe18a5eb5b166d5c1ef0796715b8d1a2cbc698f96d311d62f894ae87085.svg" alt="">
+    </div>
     <h1>Фильмы The Movie Database</h1>
     <!-- Вывод категорий фильмов  -->
     <ul class="cats">
@@ -63,6 +66,7 @@
         </div>
       </li>
     </ul>
+    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm">svaticalm</a></p>
   </div>
 </template>
 <script>
@@ -127,6 +131,23 @@ export default {
 </script>
 
 <style>
+.tmdb-img{
+  width: 55px;
+  margin-left: 20px;
+}
+.vue-img{
+  width: 50px;
+}
+.copyright{
+  font-size: 12px;
+  color: #878787;
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+.copyright a{
+  color: #878787;
+  font-weight: 700;
+}
 .nonscroll{
   overflow: hidden;
 }
