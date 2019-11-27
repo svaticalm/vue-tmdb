@@ -19,7 +19,7 @@
         <div class="overview-block">
           <img :src="'https://image.tmdb.org/t/p/w500/' + filmdetail.poster_path" alt="">
           <div class="info">
-            <p :id="'id'+index" class="title"><b>{{filmdetail.title}}</b> <br> {{filmdetail.original_title}}</p>
+            <p class="title"><b>{{filmdetail.title}}</b> <br> {{filmdetail.original_title}}</p>
             <div class="votes">
               <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
               viewBox="0 0 53.867 53.867" style="enable-background:new 0 0 53.867 53.867;" xml:space="preserve">
@@ -66,7 +66,7 @@
         </div>
       </li>
     </ul>
-    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm">svaticalm</a></p>
+    <p class="copyright" target="_blank">Приложение разработано <a href="https://github.com/svaticalm">svaticalm</a></p>
   </div>
 </template>
 <script>
@@ -400,5 +400,72 @@ h1{
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin-top: 60px;
+}
+@media screen and (max-width: 1050px){
+  .films-list{
+    width: 600px;
+    margin: 0 auto;
+  }
+  .list-item{
+    width: 600px;
+  }
+}
+@media screen and (max-width: 700px){
+  .films-list{
+    width: 90%;
+    margin: 0 auto;
+  }
+  .cats{
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cats li{
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  .butt-detail{
+    bottom: -40px;
+  }
+  .list-item{
+    border-radius: 0;
+    width: 100%;
+    flex-direction: column;
+    height: auto;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 60px;
+    margin-bottom: 40px;
+  }
+  .list-item img{
+    width: 100% !important;
+    height: auto;
+  }
+  .list-item:hover{
+    box-shadow: none;
+  }
+  .modal-inner{
+    width: 100%;
+    padding: 0;
+    border-radius: 0;
+    margin: 0 auto;
+  }
+  .modal-inner img{
+    margin-bottom: 15px;
+  }
+  .trailer{
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  iframe{
+    height: 170px;
+    margin-bottom: 10px;
+  }
+  .modal-inner .overview-block{
+    flex-direction: column;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-right: 20px;
+  }
 }
 </style>
