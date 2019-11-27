@@ -73,10 +73,10 @@
     </ul>
     <div class="arrows">
       <div :class="{'prev': true, 'disabled': currentpage == 1}" @click="currentpage = currentpage == 1 ? 1 : currentpage-1;fetchData(cats[currentIndex].catname, currentpage);">
-        Предыдущая
+        Назад
       </div>
       <div :class="{'next': true, 'disabled': currentpage == totalpages}" @click="currentpage = currentpage == totalpages ? totalpages : currentpage+1;fetchData(cats[currentIndex].catname, currentpage);">
-        Следующая
+        Далее
       </div>
     </div>
     <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
@@ -151,8 +151,12 @@ export default {
 .arrows{
   width: 1018px;
   margin: 0 auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   margin-top: 20px;
 }
 .arrows .next,
@@ -162,6 +166,8 @@ export default {
     color: #fff;
     padding: 10px 20px 10px 20px;
     cursor: pointer;
+    -webkit-transition: all .2s;
+    -o-transition: all .2s;
     transition: all .2s;
 }
 .arrows .next:hover,
@@ -248,8 +254,12 @@ export default {
 }
 .votes{
   margin: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 .votes span{
   padding-top: 3px;
@@ -267,10 +277,16 @@ export default {
   margin-right: 5px;
 }
 .overview-block{
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   margin-bottom: 40px;
-  align-items: flex-start;
-  justify-content: flex-start;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
 }
 .overview-block img{
   width: 200px;
@@ -329,7 +345,8 @@ export default {
   background-color: #fff;
   position: relative;
   margin-bottom: 30px;
-  animation: modalopen 0.5s ease;
+  -webkit-animation: modalopen 0.5s ease;
+          animation: modalopen 0.5s ease;
 }
 .modal-close{
   width: 12px;
@@ -339,29 +356,61 @@ export default {
   right: 20px;
   top: 20px;
   height: 12px;
+  -webkit-transition: all .1s;
+  -o-transition: all .1s;
   transition: all .1s;
 }
 .modal-close:hover{
-  transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+      -ms-transform: scale(1.1);
+          transform: scale(1.1);
+}
+@-webkit-keyframes listupdate {
+  0%{
+    opacity: 0;
+    -webkit-transform: scale(0.9);
+            transform: scale(0.9);
+  }
+  100%{
+    opacity: 1;
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
 }
 @keyframes listupdate {
   0%{
     opacity: 0;
-    transform: scale(0.9);
+    -webkit-transform: scale(0.9);
+            transform: scale(0.9);
   }
   100%{
     opacity: 1;
-    transform: scale(1);
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}
+@-webkit-keyframes modalopen{
+  0%{
+    opacity: 0;
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+  }
+  100%{
+    opacity: 1;
+    -webkit-transform: scale(1);
+            transform: scale(1);
   }
 }
 @keyframes modalopen{
   0%{
     opacity: 0;
-    transform: scale(0.5);
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
   }
   100%{
     opacity: 1;
-    transform: scale(1);
+    -webkit-transform: scale(1);
+            transform: scale(1);
   }
 }
 .cn-active{
@@ -371,14 +420,20 @@ export default {
   padding: 0;
   width: 500px;
   margin: 0 auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   list-style: none;
   margin-bottom: 40px;
 }
 .cat-item{
   cursor: pointer;
   color: #878787;
+  -webkit-transition: all .2s;
+  -o-transition: all .2s;
   transition: all .2s;
 }
 .cat-item:hover{
@@ -401,12 +456,20 @@ h1{
   width: 170px;
   height: 30px;
   border-radius: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
   position: absolute;
   bottom: 15px;
   font-size: 14px;
+  -webkit-transition: all .1s;
+  -o-transition: all .1s;
   transition: all .1s
 }
 .butt-detail:hover{
@@ -420,13 +483,22 @@ h1{
   width: 1020px;
   margin: 0 auto;
   padding: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
 }
 .list-item{
   width: 480px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   text-align: left;
   padding-right: 20px;
@@ -434,12 +506,17 @@ h1{
   overflow: hidden;
   cursor: pointer;
   margin-bottom: 30px;
+  -webkit-transition: all .2s;
+  -o-transition: all .2s;
   transition: all .2s;
-  animation: listupdate 0.5s ease;
+  -webkit-animation: listupdate 0.5s ease;
+          animation: listupdate 0.5s ease;
 }
 .list-item:hover{
-  box-shadow: 0 0 20px 3px rgba(0,0,0,0.2);
-  transform: perspective(1010px) rotateY(10deg);
+  -webkit-box-shadow: 0 0 20px 3px rgba(0,0,0,0.2);
+          box-shadow: 0 0 20px 3px rgba(0,0,0,0.2);
+  -webkit-transform: perspective(1010px) rotateY(10deg);
+          transform: perspective(1010px) rotateY(10deg);
 }
 .list-item img{
   width: 180px;
@@ -483,8 +560,11 @@ h1{
   }
   .cats{
     width: 100%;
-    flex-wrap: wrap;
-    justify-content: center;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
   }
   .cats li{
     margin-right: 10px;
@@ -496,10 +576,17 @@ h1{
   .list-item{
     border-radius: 0;
     width: 100%;
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
     height: auto;
-    justify-content: flex-start;
-    align-items: flex-start;
+    -webkit-box-pack: start;
+        -ms-flex-pack: start;
+            justify-content: flex-start;
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
     padding-bottom: 60px;
     margin-bottom: 40px;
   }
@@ -508,7 +595,8 @@ h1{
     height: auto;
   }
   .list-item:hover{
-    box-shadow: none;
+    -webkit-box-shadow: none;
+            box-shadow: none;
   }
   .modal-inner{
     width: 100%;
@@ -528,7 +616,10 @@ h1{
     margin-bottom: 10px;
   }
   .modal-inner .overview-block{
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
     padding-left: 20px;
     padding-top: 20px;
     padding-right: 20px;
