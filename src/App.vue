@@ -51,12 +51,15 @@
     <h1>Фильмы The Movie Database</h1>
     <!-- Вывод категорий фильмов  -->
     <ul class="cats">
-      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="fetchData(cat.catname);currentIndex = index">{{cat.name}}</li>
+      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
     </ul>
     <!-- Вывод списка фильмов  -->
     <ul class="films-list">
       <li v-for="(result,index) in results" :key="result.id" class="list-item">
-        <img :src="'https://image.tmdb.org/t/p/w500/' + result.poster_path" alt="12">
+        <img :src="'https://image.tmdb.org/t/p/w500/' + result.poster_path" alt="12" v-if="result.poster_path != null">
+        <div class="block-no-img" v-if="result.poster_path == null" style="width: 180px;height: 270px; background-color: #bababa;margin-right: 20px;border-radius: 5px;color: #fff;display: flex;justify-content: center;align-items: center;text-align: center;font-weight: 700;font-size: 16px;">
+            Фото<br>Не найдено
+        </div>
         <div class="info">
           <p :id="'id'+index" class="title"><b>{{result.title}}</b> <br> {{result.original_title}}</p>
           <p class="desc">{{result.overview.trimtxt(200)}}</p>
@@ -66,7 +69,15 @@
         </div>
       </li>
     </ul>
-    <p class="copyright" target="_blank">Приложение разработано <a href="https://github.com/svaticalm">svaticalm</a></p>
+    <div class="arrows">
+      <div :class="{'prev': true, 'disabled': currentpage == 1}" @click="currentpage = currentpage == 1 ? 1 : currentpage-1;fetchData(cats[currentIndex].catname, currentpage);">
+        Предыдущая
+      </div>
+      <div :class="{'next': true, 'disabled': currentpage == totalpages}" @click="currentpage = currentpage == totalpages ? totalpages : currentpage+1;fetchData(cats[currentIndex].catname, currentpage);">
+        Следующая
+      </div>
+    </div>
+    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
   </div>
 </template>
 <script>
@@ -83,25 +94,29 @@ export default {
     return {
       results: [],
       errors: [],
-      currentIndex: '',
+      currentIndex: 0,
       filmdetail: {videos: ''},
       videosrc: '',
       modalBool: false,
+      currentcat: '',
+      totalpages: '',
+      currentpage: 1,
       cats: [{id: 1,name: 'Популярные',catname:'popular'},{id: 2,name:'Лучшие',catname:'top_rated'},{id: 3,name:'Ожидаемые',catname: 'upcoming'},{id: 4, name: 'Смотрят сейчас',catname: 'now_playing'}],
     }
   },
   mounted(){
-    this.fetchData('popular'); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
+    this.fetchData('popular',this.currentpage); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
   },
   methods: {
     rScroll: function(){
       document.getElementsByTagName('body')[0].classList.remove('nonscroll');
     },
     //Функция запроса списка фильмов по определенной категории
-    fetchData: function(catname){
+    fetchData: function(catname,page){
       let cat = catname;
-      axios.get('https://api.themoviedb.org/3/movie/' + cat + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
-       .then(response => {this.results = response.data == 'error' ? [] : response.data.results;})
+      let curpage = page;
+      axios.get('https://api.themoviedb.org/3/movie/' + cat + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&page='+ curpage)
+       .then(response => {this.results = response.data == 'error' ? [] : response.data.results;this.totalpages = response.data.total_pages;})
        .catch(error => {
              this.errors.push(error);
        });
@@ -131,6 +146,39 @@ export default {
 </script>
 
 <style>
+.arrows{
+  width: 1018px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.arrows .next,
+.arrows .prev{
+    border-radius: 5px;
+    background-color: #878787;
+    color: #fff;
+    padding: 10px 20px 10px 20px;
+    cursor: pointer;
+    transition: all .2s;
+}
+.arrows .next:hover,
+.arrows .prev:hover{
+  background-color: #ff6161;
+}
+.arrows .next:active,
+.arrows .prev:active{
+  background-color: #ff2e2e;
+}
+.arrows .disabled{
+  background-color: #bababa;
+}
+.arrows .disabled:hover{
+  background-color: #bababa;
+}
+.arrows .disabled:active{
+  background-color: #bababa;
+}
 .tmdb-img{
   width: 55px;
   margin-left: 20px;
@@ -226,6 +274,7 @@ export default {
   width: 200px;
   height: auto;
   margin-right: 20px;
+  border-radius: 5px;
 }
 .overview-block .info{
   text-align: left;
@@ -281,13 +330,17 @@ export default {
   animation: modalopen 0.5s ease;
 }
 .modal-close{
-  width: 15px;
+  width: 12px;
   cursor: pointer;
   position: absolute;
   z-index: 10;
   right: 20px;
   top: 20px;
-  height: 15px;
+  height: 12px;
+  transition: all .1s;
+}
+.modal-close:hover{
+  transform: scale(1.1);
 }
 @keyframes listupdate {
   0%{
@@ -353,6 +406,9 @@ h1{
   background-color: #ff2e2e;
   color: #fff;
 }
+.butt-detail:active{
+  background-color: #ff2e2e;
+}
 .films-list{
   width: 1020px;
   margin: 0 auto;
@@ -375,11 +431,12 @@ h1{
   animation: listupdate 0.5s ease;
 }
 .list-item:hover{
-  box-shadow: 0 0 20px 3px rgba(0,0,0,0.25);
+  box-shadow: 0 0 20px 3px rgba(0,0,0,0.2);
 }
 .list-item img{
   width: 180px;
   margin-right: 20px;
+  border-radius: 5px;
 }
 .list-item .title{
   color: #6e6e6e;
