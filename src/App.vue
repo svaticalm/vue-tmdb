@@ -1,6 +1,7 @@
 
 <template>
   <div id="app">
+    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
     <!-- Модальное окно детальной информации о фильме (вывод ифнформации при клике на кнопку "подробнее")  -->
     <div class="film-detail-modal" id="film-detail-modal" :class="{'modal-open': modalBool}" >
       <div class="back-black" @click="modalBool =false;videosrc = '';rScroll();"></div>
@@ -62,6 +63,7 @@
         </div>
         <div class="info">
           <p :id="'id'+index" class="title"><b>{{result.title}}</b> <br> {{result.original_title}}</p>
+          <p class="release-date">Год: <span>{{result.release_date.split('-')[0]}}</span></p>
           <p class="desc">{{result.overview.trimtxt(200)}}</p>
           <div class="butt-detail" v-on:click="getFilm(result.id);">
             Подробнее
@@ -388,6 +390,11 @@ h1{
 .info{
   position: relative;
 }
+.release-date{
+  font-size: 12px;
+  color: #878787;
+  font-weight: 700;
+}
 .butt-detail{
   color: #ff2e2e;
   border: 1px solid #ff2e2e;
@@ -426,12 +433,13 @@ h1{
   border-radius: 5px;
   overflow: hidden;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   transition: all .2s;
   animation: listupdate 0.5s ease;
 }
 .list-item:hover{
   box-shadow: 0 0 20px 3px rgba(0,0,0,0.2);
+  transform: perspective(1010px) rotateY(10deg);
 }
 .list-item img{
   width: 180px;
@@ -448,7 +456,8 @@ h1{
   font-size: 16px;
 }
 .list-item .desc{
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 18px;
   color: #6e6e6e;
 }
 #app {
@@ -456,7 +465,7 @@ h1{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  margin-top: 60px;
+  margin-top: 30px;
 }
 @media screen and (max-width: 1050px){
   .films-list{
