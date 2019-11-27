@@ -1,7 +1,6 @@
 
 <template>
   <div id="app">
-    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
     <!-- Модальное окно детальной информации о фильме (вывод ифнформации при клике на кнопку "подробнее")  -->
     <div class="film-detail-modal" id="film-detail-modal" :class="{'modal-open': modalBool}" >
       <div class="back-black" @click="modalBool =false;videosrc = '';rScroll();"></div>
@@ -30,10 +29,11 @@
               <span class="vote-average">{{filmdetail.vote_average}}</span>
               <span class="vote-count">({{filmdetail.vote_count}})</span>
             </div>
-            <p class="genres-ttl">Жанры:</p>
+            <p class="genres-ttl modal-ttl">Жанры:</p>
             <ul class="genres-list">
               <li v-for="genre in filmdetail.genres" :key="genre.id">{{genre.name}}</li>
             </ul>
+            <p v-if="filmdetail.release_date" class="modal-ttl">Год: {{filmdetail.release_date.split('-')[0]}}</p>
             <p class="desc">{{filmdetail.overview}}</p>
           </div>
         </div>
@@ -45,15 +45,18 @@
         </div>
       </div>
     </div>
-    <div class="images">
-      <img alt="Vue logo" src="./assets/logo.png" class="vue-img">
-      <img class="tmdb-img" src="https://www.themoviedb.org/assets/2/v4/logos/primary-green-d70eebe18a5eb5b166d5c1ef0796715b8d1a2cbc698f96d311d62f894ae87085.svg" alt="">
+    <div class="header">
+      <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
+      <div class="images">
+        <img alt="Vue logo" src="./assets/logo.png" class="vue-img">
+        <img class="tmdb-img" src="https://www.themoviedb.org/assets/2/v4/logos/primary-green-d70eebe18a5eb5b166d5c1ef0796715b8d1a2cbc698f96d311d62f894ae87085.svg" alt="">
+      </div>
+      <h1>Фильмы The Movie Database</h1>
+      <!-- Вывод категорий фильмов  -->
+      <ul class="cats">
+        <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
+      </ul>
     </div>
-    <h1>Фильмы The Movie Database</h1>
-    <!-- Вывод категорий фильмов  -->
-    <ul class="cats">
-      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
-    </ul>
     <!-- Вывод списка фильмов  -->
     <ul class="films-list">
       <li v-for="(result,index) in results" :key="result.id" class="list-item">
@@ -79,7 +82,7 @@
         Далее
       </div>
     </div>
-    <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
+    <p class="copyright copy-footer">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
   </div>
 </template>
 <script>
@@ -179,13 +182,13 @@ export default {
   background-color: #ff2e2e;
 }
 .arrows .disabled{
-  background-color: #bababa;
+  background-color: #d0d0d0;
 }
 .arrows .disabled:hover{
-  background-color: #bababa;
+  background-color: #d0d0d0;
 }
 .arrows .disabled:active{
-  background-color: #bababa;
+  background-color: #d0d0d0;
 }
 .tmdb-img{
   width: 55px;
@@ -196,13 +199,19 @@ export default {
 }
 .copyright{
   font-size: 12px;
-  color: #878787;
+  color: #3f4757;
   margin-bottom: 30px;
   margin-top: 30px;
 }
 .copyright a{
-  color: #878787;
+  color: #3f4757;
   font-weight: 700;
+}
+.copy-footer{
+  color: #878787;
+}
+.copy-footer a{
+  color: #878787;
 }
 .nonscroll{
   overflow: hidden;
@@ -231,6 +240,13 @@ export default {
   position: absolute;
   bottom: -3px;
   left: 0;
+}
+.modal-ttl{
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #878787;
+  font-weight: 700;
+  margin-top: 10px;
 }
 .genres-ttl{
   font-size: 12px;
@@ -413,8 +429,11 @@ export default {
             transform: scale(1);
   }
 }
+body{
+  margin: 0;
+}
 .cn-active{
-  color: #000 !important;
+  color: #fff !important;
 }
 .cats{
   padding: 0;
@@ -427,17 +446,17 @@ export default {
       -ms-flex-pack: justify;
           justify-content: space-between;
   list-style: none;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .cat-item{
   cursor: pointer;
-  color: #878787;
+  color: #2a3243;
   -webkit-transition: all .2s;
   -o-transition: all .2s;
   transition: all .2s;
 }
 .cat-item:hover{
-  color: #000;
+  color: #fff;
 }
 h1{
   margin-bottom: 30px;
@@ -542,7 +561,13 @@ h1{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  margin-top: 30px;
+}
+.header{
+  background-color: #050a1f;
+  color: #fff;
+  padding-top: 1px;
+  padding-bottom: 5px;
+  margin-bottom: 30px;
 }
 @media screen and (max-width: 1050px){
   .films-list{
