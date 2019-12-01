@@ -46,23 +46,27 @@
       </div>
     </div>
     <div class="header">
-      <p class="copyright">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
-      <div class="images">
-        <img alt="Vue logo" src="./assets/logo.png" class="vue-img">
-        <img class="tmdb-img" src="https://www.themoviedb.org/assets/2/v4/logos/primary-green-d70eebe18a5eb5b166d5c1ef0796715b8d1a2cbc698f96d311d62f894ae87085.svg" alt="">
-      </div>
+      <!--
+        <div class="images">
+          <img alt="Vue logo" src="./assets/logo.png" class="vue-img">
+          <img class="tmdb-img" src="https://www.themoviedb.org/assets/2/v4/logos/primary-green-d70eebe18a5eb5b166d5c1ef0796715b8d1a2cbc698f96d311d62f894ae87085.svg" alt="">
+        </div>
       <h1>Фильмы The Movie Database</h1>
-      <!-- Вывод категорий фильмов  -->
-      <ul class="cats">
-        <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
-      </ul>
+      -->
+      <div class="search-block">
+          <FastSearch @getfilm="getFilm($event)"></FastSearch>
+      </div>
     </div>
+    <!-- Вывод категорий фильмов  -->
+    <ul class="cats">
+      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
+    </ul>
     <!-- Вывод списка фильмов  -->
     <ul class="films-list">
       <li v-for="(result,index) in results" :key="result.id" class="list-item">
         <img :src="'https://image.tmdb.org/t/p/w500/' + result.poster_path" alt="12" v-if="result.poster_path != null">
-        <div class="block-no-img" v-if="result.poster_path == null" style="width: 180px;height: 270px; background-color: #bababa;margin-right: 20px;border-radius: 5px;color: #fff;display: flex;justify-content: center;align-items: center;text-align: center;font-weight: 700;font-size: 16px;">
-            Фото<br>Не найдено
+        <div class="block-no-img" v-if="result.poster_path == null" style="width: 180px;height: 270px; background-color: #050a1f;margin-right: 20px;border-radius: 5px;color: #fff;display: flex;justify-content: center;align-items: center;text-align: center;font-weight: 700;font-size: 16px;">
+            Постер<br>не найден
         </div>
         <div class="info">
           <p :id="'id'+index" class="title"><b>{{result.title}}</b> <br> {{result.original_title}}</p>
@@ -90,17 +94,21 @@
 String.prototype.trimtxt = function (length) {
   return this.length > length ? this.substring(0, length) + "..." : this;
 }
-
+import FastSearch from './components/fastsearch.vue'
 import axios from 'axios'
 
 export default {
+  props: ['resopened'],
   name: 'app',
+  components: {
+    FastSearch,
+  },
   data: function(){
     return {
       results: [],
       errors: [],
       currentIndex: 0,
-      filmdetail: {videos: ''},
+      filmdetail: [],
       videosrc: '',
       modalBool: false,
       currentcat: '',
@@ -129,17 +137,11 @@ export default {
     //Функция получения подробной информации о выбранном фильме и получение трейлера
     getFilm: function(id){
       //запрос на информацию
-      axios.get('https://api.themoviedb.org/3/movie/' + id + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
-       .then(response => {this.filmdetail = response.data == 'error' ? [] : response.data;})
+      axios.get('https://api.themoviedb.org/3/movie/' + id + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&append_to_response=videos')
+       .then(response => {this.filmdetail = response.data == 'error' ? [] : response.data;this.videosrc = this.filmdetail.videos.results.length > 0 ? 'https://www.youtube.com/embed/' + this.filmdetail.videos.results[0].key : ''})
        .catch(error => {
              this.errors.push(error);
        });
-       //запрос на трейлер
-       axios.get('https://api.themoviedb.org/3/movie/' + id + '/videos?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU')
-        .then(response => {this.filmdetail.videos = response.data == 'error' ? [] : response.data.results; this.videosrc = this.filmdetail.videos.length > 0 ? 'https://www.youtube.com/embed/' + this.filmdetail.videos[0].key : ''})
-        .catch(error => {
-              this.errors.push(error);
-        });
         document.getElementsByTagName('body')[0].classList.add('nonscroll');
         let self = this;
         setTimeout(function(){
@@ -151,6 +153,12 @@ export default {
 </script>
 
 <style>
+.search-block{
+  width: 1020px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
 .arrows{
   width: 1018px;
   margin: 0 auto;
@@ -165,7 +173,7 @@ export default {
 .arrows .next,
 .arrows .prev{
     border-radius: 5px;
-    background-color: #878787;
+    background-color: #3f4757;
     color: #fff;
     padding: 10px 20px 10px 20px;
     cursor: pointer;
@@ -182,13 +190,14 @@ export default {
   background-color: #ff2e2e;
 }
 .arrows .disabled{
-  background-color: #d0d0d0;
+  background-color: #2c2f3d;
+  color: #545969;
 }
 .arrows .disabled:hover{
-  background-color: #d0d0d0;
+  background-color: #2c2f3d;
 }
 .arrows .disabled:active{
-  background-color: #d0d0d0;
+  background-color: #2c2f3d;
 }
 .tmdb-img{
   width: 55px;
@@ -208,13 +217,12 @@ export default {
   font-weight: 700;
 }
 .copy-footer{
-  color: #878787;
-}
-.copy-footer a{
-  color: #878787;
+  margin-bottom: 0;
+  padding-bottom: 30px;
 }
 .nonscroll{
   overflow: hidden;
+  padding-right: 18px;
 }
 /* хром, сафари */
 .film-detail-modal::-webkit-scrollbar { width: 0; }
@@ -228,15 +236,16 @@ export default {
   text-align: left;
   font-weight: 700;
   font-size: 14px;
-  border-bottom: 3px solid #d4d4d4;
+  border-bottom: 3px solid #3d4d6c;
   padding-bottom: 7px;
   position: relative;
+  color: #fff;
 }
 .trailer:after{
   content: '';
   width: 60px;
   height: 3px;
-  background-color: #000;
+  background-color: #fffe;
   position: absolute;
   bottom: -3px;
   left: 0;
@@ -244,14 +253,14 @@ export default {
 .modal-ttl{
   font-size: 12px;
   margin-bottom: 5px;
-  color: #878787;
+  color: #808eab;
   font-weight: 700;
   margin-top: 10px;
 }
 .genres-ttl{
   font-size: 12px;
   margin-bottom: 5px;
-  color: #878787;
+  color: #808eab;
   font-weight: 700;
   margin-top: 20px;
 }
@@ -263,7 +272,7 @@ export default {
 .genres-list li{
   display: inline-block;
   cursor: pointer;
-  color: #878787;
+  color: #808eab;
   font-size: 12px;
   margin-right: 10px;
   text-transform: capitalize;
@@ -282,10 +291,11 @@ export default {
 }
 .votes .vote-average{
   margin-right: 5px;
+  color: #808eab;
   font-weight: 700;
 }
 .votes .vote-count{
-  color: #878787;
+  color: #808eab;
   font-size: 12px;
 }
 .votes svg{
@@ -315,17 +325,17 @@ export default {
 }
 .overview-block .info .title{
   font-size: 16px;
-  color: #6e6e6e;
+  color: #808eab;
   margin-top: 0;
   line-height: 25px;
   margin-bottom: 3px;
 }
 .overview-block .info .title b{
-  color: #000;
+  color: #fff;
   font-size: 18px;
 }
 .overview-block .info .desc{
-  color: #6e6e6e;
+  color: #808eab;
   font-size: 14px;
   line-height: 22px;
 }
@@ -336,7 +346,7 @@ export default {
   left: 0;
   overflow: hidden;
   position: fixed;
-  background-color: rgba(0,0,0,0.3);
+  background-color: rgba(0,0,0,0.8);
 }
 .film-detail-modal{
   width: 100%;
@@ -358,7 +368,7 @@ export default {
   padding: 20px;
   margin: 0 auto;
   margin-top: 20px;
-  background-color: #fff;
+  background-color: #13182b;
   position: relative;
   margin-bottom: 30px;
   -webkit-animation: modalopen 0.5s ease;
@@ -375,6 +385,9 @@ export default {
   -webkit-transition: all .1s;
   -o-transition: all .1s;
   transition: all .1s;
+}
+.modal-close path{
+  fill: #fff;
 }
 .modal-close:hover{
   -webkit-transform: scale(1.1);
@@ -437,23 +450,26 @@ body{
 }
 .cats{
   padding: 0;
-  width: 500px;
+  width: 1020px;
   margin: 0 auto;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
-          justify-content: space-between;
+          justify-content: flex-start;
   list-style: none;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  margin-top: 40px;
+
 }
 .cat-item{
   cursor: pointer;
-  color: #2a3243;
+  color: #303d57;
   -webkit-transition: all .2s;
   -o-transition: all .2s;
   transition: all .2s;
+  margin-right: 50px;
 }
 .cat-item:hover{
   color: #fff;
@@ -466,14 +482,15 @@ h1{
 }
 .release-date{
   font-size: 12px;
-  color: #878787;
+  color: #808eab;
   font-weight: 700;
 }
 .butt-detail{
   color: #ff2e2e;
-  border: 1px solid #ff2e2e;
+  border: 2px solid #ff2e2e;
   width: 170px;
   height: 30px;
+  font-weight: 700;
   border-radius: 5px;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -496,7 +513,7 @@ h1{
   color: #fff;
 }
 .butt-detail:active{
-  background-color: #ff2e2e;
+  transform: scale(0.9);
 }
 .films-list{
   width: 1020px;
@@ -543,24 +560,25 @@ h1{
   border-radius: 5px;
 }
 .list-item .title{
-  color: #6e6e6e;
+  color: #808eab;
   font-size: 12px;
   line-height: 22px;
 }
 .list-item .title b{
-  color: #000;
+  color: #fff;
   font-size: 16px;
 }
 .list-item .desc{
   font-size: 12px;
   line-height: 18px;
-  color: #6e6e6e;
+  color: #808eab;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  background-color: #13182b;
 }
 .header{
   background-color: #050a1f;
@@ -576,6 +594,28 @@ h1{
   }
   .list-item{
     width: 600px;
+  }
+  .search-block{
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-sizing: border-box;
+  }
+  .cats{
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 15px;
+    padding-left: 15px;
+    justify-content: center;
+  }
+  .arrows{
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-sizing: border-box;
+  }
+  .nonscroll{
+    padding-right: 0;
   }
 }
 @media screen and (max-width: 700px){
