@@ -7,7 +7,7 @@
         </g></g> </svg>
     </div>
     <ul class="fast-search-list" v-if="resopened">
-      <li v-for="res in result" :key="res.id" @click="$emit('getfilm',res.id);resopened = false;" v-show="res.media_type != 'person'" class="fs-item">
+      <li v-for="res in result" :key="res.id" @click="$emit('getfilm',[res.media_type,res.id]);resopened = false;" v-show="res.media_type != 'person'" class="fs-item">
           <span v-show="res.title">{{res.title}}</span>
           <span v-show="res.name">{{res.name}}</span>
       </li>
@@ -29,10 +29,8 @@ export default {
     }
   },
   watch: {
-    keywords(after,before){
-      if(this.keywords.length > 2){
-        this.search(before);
-      }
+    keywords(after){
+      this.search(after);
     }
   },
   mounted(){

@@ -19,7 +19,10 @@
         <div class="overview-block">
           <img :src="'https://image.tmdb.org/t/p/w500/' + filmdetail.poster_path" alt="">
           <div class="info">
-            <p class="title"><b>{{filmdetail.title}}</b> <br> {{filmdetail.original_title}}</p>
+            <p class="title"><b>
+              <span v-show="filmdetail.title">{{filmdetail.title}}</span>
+              <span v-show="filmdetail.name">{{filmdetail.name}}</span>
+            </b> <br> {{filmdetail.original_title}}</p>
             <div class="votes">
               <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
               viewBox="0 0 53.867 53.867" style="enable-background:new 0 0 53.867 53.867;" xml:space="preserve">
@@ -40,7 +43,7 @@
         <!-- Вывод первого трейлера -->
         <p class="trailer">Трейлер</p>
         <iframe v-if="videosrc != ''" width="100%" height="315" :src="videosrc" frameborder="0" allowfullscreen></iframe>
-        <div v-if="videosrc == ''">
+        <div v-if="videosrc == ''" class="non-trailer">
           Трейлер не найден!
         </div>
       </div>
@@ -72,7 +75,7 @@
           <p :id="'id'+index" class="title"><b>{{result.title}}</b> <br> {{result.original_title}}</p>
           <p class="release-date">Год: <span>{{result.release_date.split('-')[0]}}</span></p>
           <p class="desc">{{result.overview.trimtxt(200)}}</p>
-          <div class="butt-detail" v-on:click="getFilm(result.id);">
+          <div class="butt-detail" v-on:click="getFilm(['movie',result.id]);">
             Подробнее
           </div>
         </div>
@@ -135,9 +138,9 @@ export default {
        });
     },
     //Функция получения подробной информации о выбранном фильме и получение трейлера
-    getFilm: function(id){
+    getFilm: function(arr){
       //запрос на информацию
-      axios.get('https://api.themoviedb.org/3/movie/' + id + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&append_to_response=videos')
+      axios.get('https://api.themoviedb.org/3/'+ arr[0] + '/' + arr[1] + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&append_to_response=videos')
        .then(response => {this.filmdetail = response.data == 'error' ? [] : response.data;this.videosrc = this.filmdetail.videos.results.length > 0 ? 'https://www.youtube.com/embed/' + this.filmdetail.videos.results[0].key : ''})
        .catch(error => {
              this.errors.push(error);
@@ -153,6 +156,10 @@ export default {
 </script>
 
 <style>
+.non-trailer{
+  color: #fff;
+  margin-top: 20px;
+}
 .search-block{
   width: 1020px;
   margin: 0 auto;
