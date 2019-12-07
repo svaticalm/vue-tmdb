@@ -48,6 +48,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Шапка с поиском -->
     <div class="header">
       <!--
         <div class="images">
@@ -57,13 +59,19 @@
       <h1>Фильмы The Movie Database</h1>
       -->
       <div class="search-block">
+          <!-- Компонент быстрого поиска -->
           <FastSearch @getfilm="getFilm($event)"></FastSearch>
       </div>
     </div>
+
     <!-- Вывод категорий фильмов  -->
-    <ul class="cats">
-      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage);currentIndex = index">{{cat.name}}</li>
+    <ul class="tv-movie">
+      <li v-for="(type,index) in types" :key="type.id" :class="{'active': index == currentIndexType}" @click="currenttype = type.name;cats  = type.name == 'movie' ? filmcats : tvcats;fetchData(cats[currentIndex].catname, currentpage, currenttype);currentIndexType = index;">{{type.title}}</li>
     </ul>
+    <ul class="cats">
+      <li :class="{'cat-item': true,'cn-active': index == currentIndex}" v-for="(cat,index) in cats" :key="cat.id"  @click="currentpage = 1;fetchData(cat.catname, currentpage, currenttype);currentIndex = index;">{{cat.name}}</li>
+    </ul>
+
     <!-- Вывод списка фильмов  -->
     <ul class="films-list">
       <li v-for="(result,index) in results" :key="result.id" class="list-item">
@@ -72,84 +80,107 @@
             Постер<br>не найден
         </div>
         <div class="info">
-          <p :id="'id'+index" class="title"><b>{{result.title}}</b> <br> {{result.original_title}}</p>
-          <p class="release-date">Год: <span>{{result.release_date.split('-')[0]}}</span></p>
+          <p :id="'id'+index" class="title">
+            <!-- Для фильма -->
+            <span v-if="result.title"><b>{{result.title}}</b> <br> {{result.original_title}}</span>
+            <!-- Для Сериала -->
+            <span v-if="result.name"><b>{{result.name}}</b> <br> {{result.original_name}}</span>
+          </p>
+          <p class="release-date">Год: <span v-if="result.release_date">{{result.release_date.split('-')[0]}}</span> <span v-if="result.first_air_date">{{result.first_air_date.split('-')[0]}}</span></p>
           <p class="desc">{{result.overview.trimtxt(200)}}</p>
-          <div class="butt-detail" v-on:click="getFilm(['movie',result.id]);">
+          <div class="butt-detail" v-on:click="getFilm([currenttype,result.id]);">
             Подробнее
           </div>
         </div>
       </li>
     </ul>
+
+    <!-- Переключение между страницами -->
     <div class="arrows">
-      <div :class="{'prev': true, 'disabled': currentpage == 1}" @click="currentpage = currentpage == 1 ? 1 : currentpage-1;fetchData(cats[currentIndex].catname, currentpage);">
+      <div :class="{'prev': true, 'disabled': currentpage == 1}" @click="currentpage = currentpage == 1 ? 1 : currentpage-1;fetchData(cats[currentIndex].catname, currentpage, currenttype);">
         Назад
       </div>
-      <div :class="{'next': true, 'disabled': currentpage == totalpages}" @click="currentpage = currentpage == totalpages ? totalpages : currentpage+1;fetchData(cats[currentIndex].catname, currentpage);">
+      <div :class="{'next': true, 'disabled': currentpage == totalpages}" @click="currentpage = currentpage == totalpages ? totalpages : currentpage+1;fetchData(cats[currentIndex].catname, currentpage, currenttype);">
         Далее
       </div>
     </div>
+
     <p class="copyright copy-footer">Приложение разработано <a href="https://github.com/svaticalm" target="_blank">svaticalm</a></p>
   </div>
 </template>
 <script>
+import FastSearch from './components/fastsearch.vue'
+import axios from 'axios'
+
 //Функция обрезания текста по кол-ву символов.
 String.prototype.trimtxt = function (length) {
   return this.length > length ? this.substring(0, length) + "..." : this;
 }
-import FastSearch from './components/fastsearch.vue'
-import axios from 'axios'
 
 export default {
-  props: ['resopened'],
   name: 'app',
   components: {
     FastSearch,
   },
   data: function(){
     return {
-      results: [],
-      errors: [],
-      currentIndex: 0,
-      filmdetail: [],
-      videosrc: '',
-      modalBool: false,
-      currentcat: '',
-      totalpages: '',
-      currentpage: 1,
+      results: [], //Результаты запроса к бд по фильмам или сериалам
+      errors: [], //Ошибки при запросе
+      currentIndex: 0, //Индекс выбранной категории
+      currentIndexType: 0,
+      filmdetail: [], //Детальное описание фильма при нажатии на кнопку подробнее
+      videosrc: '', //Путь к первому видео из filmdetail
+      modalBool: false, //Отвечает за вызов модалки (true - открыта, false - закрыта)
+      totalpages: '', //Кол-во страниц для переключения
+      currentpage: 1, //Текущая страница
+      currenttype: 'movie',
+      randomFilm: '',
+      //Медиа тип
+      types: [{id: 1, name: 'movie', title: 'Фильмы'},{id: 2, name: 'tv', title: 'Сериалы'}],
+      //Категории
+      filmcats: [{id: 1,name: 'Популярные',catname:'popular'},{id: 2,name:'Лучшие',catname:'top_rated'},{id: 3,name:'Ожидаемые',catname: 'upcoming'},{id: 4, name: 'Смотрят сейчас',catname: 'now_playing'}],
+      tvcats: [{id: 1,name: 'Популярные',catname:'popular'},{id: 2,name:'Лучшие',catname:'top_rated'},{id: 3,name:'На этой неделе',catname: 'on_the_air'},{id: 4, name: 'Смотрят сейчас',catname: 'airing_today'}],
       cats: [{id: 1,name: 'Популярные',catname:'popular'},{id: 2,name:'Лучшие',catname:'top_rated'},{id: 3,name:'Ожидаемые',catname: 'upcoming'},{id: 4, name: 'Смотрят сейчас',catname: 'now_playing'}],
     }
   },
   mounted(){
-    this.fetchData('popular',this.currentpage); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
+    this.fetchData('popular', this.currentpage, this.currenttype); //Назначаем изначальный вывод списка фильмов из категории ( в данном случае "популярные")
+    let self = this;
+    setTimeout(function(){
+      self.getFilm(['movie', self.results[self.randomFilm].id]);
+    }, 300);
   },
   methods: {
-    rScroll: function(){
-      document.getElementsByTagName('body')[0].classList.remove('nonscroll');
-    },
     //Функция запроса списка фильмов по определенной категории
-    fetchData: function(catname,page){
+    fetchData: function(catname,page,type){
       let cat = catname;
       let curpage = page;
-      axios.get('https://api.themoviedb.org/3/movie/' + cat + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&page='+ curpage)
-       .then(response => {this.results = response.data == 'error' ? [] : response.data.results;this.totalpages = response.data.total_pages;})
+      axios.get('https://api.themoviedb.org/3/'+ type +'/' + cat + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&page='+ curpage)
+       .then(response => {this.results = response.data == 'error' ? [] : response.data.results;this.totalpages = response.data.total_pages;this.randomFilm = Math.floor(Math.random() * (20 - 0) + 0);})
        .catch(error => {
              this.errors.push(error);
        });
     },
-    //Функция получения подробной информации о выбранном фильме и получение трейлера
+    getRandom: function(min,max){
+      return Math.floor(Math.random() * (max - min)) + min;
+    },
+    //Функция получения подробной информации о выбранном фильме
     getFilm: function(arr){
-      //запрос на информацию
+      //В аргументе передается массив с двумя значениями (arr[0] - тип контента фильм или сериал, arr[1] - id контента для поиска)
       axios.get('https://api.themoviedb.org/3/'+ arr[0] + '/' + arr[1] + '?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&append_to_response=videos')
        .then(response => {this.filmdetail = response.data == 'error' ? [] : response.data;this.videosrc = this.filmdetail.videos.results.length > 0 ? 'https://www.youtube.com/embed/' + this.filmdetail.videos.results[0].key : ''})
        .catch(error => {
              this.errors.push(error);
        });
-        document.getElementsByTagName('body')[0].classList.add('nonscroll');
+       //
+        document.getElementsByTagName('body')[0].classList.add('nonscroll'); // Убираем скролл если открыта модалка
         let self = this;
         setTimeout(function(){
-          self.modalBool = true;
+          self.modalBool = true;  //Открываем модалку с таймаутом
         },300);
+    },
+    rScroll: function(){
+      document.getElementsByTagName('body')[0].classList.remove('nonscroll'); //Вовзращаем скролл
     },
   },
 }
@@ -194,7 +225,7 @@ export default {
 }
 .arrows .next:active,
 .arrows .prev:active{
-  background-color: #ff2e2e;
+  background-color: #ff4444;
 }
 .arrows .disabled{
   background-color: #2c2f3d;
@@ -452,10 +483,10 @@ export default {
 body{
   margin: 0;
 }
-.cn-active{
+.cn-active, .tv-movie li.active{
   color: #fff !important;
 }
-.cats{
+.cats,.tv-movie{
   padding: 0;
   width: 1020px;
   margin: 0 auto;
@@ -470,7 +501,13 @@ body{
   margin-top: 40px;
 
 }
-.cat-item{
+.tv-movie{
+  margin-top: 30px
+}
+.tv-movie li{
+  font-weight: 900
+}
+.cat-item, .tv-movie li{
   cursor: pointer;
   color: #303d57;
   -webkit-transition: all .2s;
@@ -478,7 +515,7 @@ body{
   transition: all .2s;
   margin-right: 50px;
 }
-.cat-item:hover{
+.cat-item:hover, .tv-movie li:hover{
   color: #fff;
 }
 h1{
@@ -493,8 +530,8 @@ h1{
   font-weight: 700;
 }
 .butt-detail{
-  color: #ff2e2e;
-  border: 2px solid #ff2e2e;
+  color: #ff4444;
+  border: 2px solid #ff4444;
   width: 170px;
   height: 30px;
   font-weight: 700;
@@ -516,7 +553,7 @@ h1{
   transition: all .1s
 }
 .butt-detail:hover{
-  background-color: #ff2e2e;
+  background-color: #ff4444;
   color: #fff;
 }
 .butt-detail:active{

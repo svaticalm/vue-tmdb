@@ -6,10 +6,12 @@
           <path d="M495,466.2L377.2,348.4c29.2-35.6,46.8-81.2,46.8-130.9C424,103.5,331.5,11,217.5,11C103.4,11,11,103.5,11,217.5   S103.4,424,217.5,424c49.7,0,95.2-17.5,130.8-46.7L466.1,495c8,8,20.9,8,28.9,0C503,487.1,503,474.1,495,466.2z M217.5,382.9   C126.2,382.9,52,308.7,52,217.5S126.2,52,217.5,52C308.7,52,383,126.3,383,217.5S308.7,382.9,217.5,382.9z" data-original="#000000" class="active-path" data-old_color="#000000" fill="#FFFFFF"/>
         </g></g> </svg>
     </div>
+
+    <!-- Вывод результатов быстрого поиска -->
     <ul class="fast-search-list" v-if="resopened">
       <li v-for="res in result" :key="res.id" @click="$emit('getfilm',[res.media_type,res.id]);resopened = false;" v-show="res.media_type != 'person'" class="fs-item">
-          <span v-show="res.title">{{res.title}}</span>
-          <span v-show="res.name">{{res.name}}</span>
+          <div v-show="res.title" v-html="highlight(res.title)"></div>
+          <div v-show="res.name" v-html="highlight(res.name)"></div>
       </li>
     </ul>
   </div>
@@ -22,19 +24,22 @@ export default {
   name: 'FastSearch',
   data: function(){
     return {
-      result: [],
-      keywords: '',
-      errors: [],
-      resopened: false,
+      result: [], //Результаты быстрого поиска
+      keywords: '', //Слежение за инпутом
+      errors: [], //Ошибки при отправке запроса
+      resopened: false, //Отвечает за видимость списка результатов быстрого поиска
     }
   },
   watch: {
     keywords(after){
-      this.search(after);
+      if(after.length > 2){
+        this.search(after); //Отправляем запросы если введено больше двух символов
+      }
     }
   },
   mounted(){
     let self = this;
+    //Клик вне списка результатов быстрого поиска(скрываем список)
     document.body.onclick = function (e) {
         e = e || event;
         let target = e.target || e.srcElement;
@@ -46,12 +51,15 @@ export default {
     }
   },
   methods: {
-    flClose: function(){
-      this.resopened = false;
+    // Функция быстрого поиска
+    highlight: function(text) {
+      let txt = text + '';
+      return txt.replace(new RegExp(this.keywords, 'gi'), '<span class="highlighted">$&</span>');
     },
     search: function(keywords){
-      this.resopened = true;
-      //Запрашиваем массив с фильмами, серилами и персонами. Сортируем элементы по убыванию популярности (функция sort) + reverse
+      this.resopened = true; // Открываем модальное окно
+
+      // Запрашиваем массив с фильмами, серилами и персонами (персон обрубаем при выводе в DOM). Сортируем элементы по убыванию популярности (функция sort) + reverse
       axios.get('https://api.themoviedb.org/3/search/multi?api_key=7e00b848ffbb0a2bb957f6631e1ad255&language=ru-RU&include_adult=false&query=' + keywords)
        .then(response => {this.result = response.data == 'error' ? [] : response.data.results.sort((a, b) => b.popularity - a.popularity );})
        .catch(error => {
@@ -62,7 +70,7 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="css">
   .search-butt{
     position: absolute;
     top: 17px;
@@ -79,6 +87,9 @@ export default {
     position: relative;
   }
   .fast-search input::-webkit-input-placeholder{
+    color: #fff;
+  }
+  .fast-search input:focus::-webkit-input-placeholder{
     color: #c8c8c8;
   }
   .fast-search input{
@@ -140,6 +151,12 @@ export default {
     height: 50px;
     background-color: #ff5959;
     color: #fff;
+  }
+  .highlighted{
+    color: #ff7979 !important;
+  }
+  .fast-search-list li:hover .highlighted{
+    color: #fff !important;
   }
   .fast-search-list li:last-child{
     border-bottom-left-radius: 5px;
